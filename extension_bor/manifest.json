@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Bor Protocol Event Listener",
+  "version": "1.0",
+  "icons": {
+    "128": "icons/icon1281.png"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:*/*",
+    "https://localhost:*/*",
+    "https://x.com/*",
+    "https://*.x.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icons/icon1281.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Gift button animations */
+.gift-button {
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: center;
+  will-change: transform;
+  position: relative;
+  z-index: 1;
+}
+
+.gift-container:hover .gift-button {
+  transform: scale(1.25);
+  z-index: 10;
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.3);
+}
+
+.gift-button:active {
+  transform: scale(0.95) !important;
+  transition: transform 0.1s ease-in-out;
+}
+
+/* Hide label on hover */
+.gift-label {
+  opacity: 1;
+  transition: opacity 0.2s ease-out;
+}
+
+.gift-container:hover .gift-label {
+  opacity: 0;
+}
+
+/* Pop animation for gift counter */
+@keyframes popIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.gift-counter {
+  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.wallet-adapter-button {
+  background-color: #fe2c55;  /* TikTok-style red */
+  color: white;
+  border: 1px solid #fe2c55;
+  border-radius: 6px;         /* Matches rounded-md */
+  padding: 8px 16px;         /* Matches py-2 */
+  font-weight: 500;          /* font-medium */
+  font-size: 14px;          /* text-sm */
+  transition: all 0.2s ease;  /* Smooth transition for all properties */
+}
+
+.wallet-adapter-button:hover {
+  border-color: #ff3b64;
+  opacity: 0.95;             /* Subtle opacity change */
+  transform: brightness(1.1); /* Slight brightness increase */
+}

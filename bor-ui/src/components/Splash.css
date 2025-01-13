@@ -1,0 +1,65 @@
+.splash-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFE5EC;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.logo-container {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.hearts {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.heart {
+  position: absolute;
+  animation: floatHeart 6s ease-in-out infinite;
+  opacity: 0.3;
+}
+
+@keyframes floatHeart {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.message {
+  text-align: center;
+  color: #FF69B4;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.kawaii-text {
+  font-size: 1rem;
+  color: #FF99CC;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.secondary-logo {
+  width: 320px;
+  height: auto;
+}
