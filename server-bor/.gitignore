@@ -1,0 +1,7 @@
+# ignore node modules
+node_modules
+
+# ignore bun cache
+.bun
+
+.env
