@@ -811,8 +811,22 @@ Return only the thought, no explanations or formatting.
         return thoughtText;
     }
 
+    // make random animations each time 
     private async generateAndSharePeriodicAnimation() {
         try {
+            // Combine all animations into one array
+            const allAnimations = [
+                ...ANIMATION_OPTIONS.DANCING,
+                ...ANIMATION_OPTIONS.HEAD,
+                ...ANIMATION_OPTIONS.GESTURES,
+                ...ANIMATION_OPTIONS.SPECIAL
+            ];
+    
+            // Randomly select 10 unique animations
+            const randomAnimations = allAnimations
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 10);
+    
             const context = composeContext({
                 state: await this.runtime.composeState({
                     userId: this.runtime.agentId,
@@ -823,7 +837,7 @@ Return only the thought, no explanations or formatting.
                     agentName: this.runtime.character.name,
                     bio: this.runtime.character.bio,
                     adjectives: this.runtime.character.adjectives,
-                    availableAnimations: [...ANIMATION_OPTIONS.DANCING, ...ANIMATION_OPTIONS.HEAD, ...ANIMATION_OPTIONS.GESTURES, ...ANIMATION_OPTIONS.SPECIAL].join(', ')
+                    availableAnimations: randomAnimations.join(', ')
                 }),
                 template: borpAnimationTemplate
             });
