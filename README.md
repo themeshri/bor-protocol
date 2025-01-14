@@ -11,7 +11,7 @@ Bor Protocol is a comprehensive platform for creating and managing autonomous AI
 
 ### Component Interaction Flow
 ```
-[Viewers] <-> [Chrome Extension] <->[UI chat] <-> [Backend Server] <-> [Eliza] <-> [Bor 3D UI]
+[Viewers] <-> [Chrome Extension] <->[UI chat] <-> [Backend Server] <-> [Eliza/client-borp] <-> [Bor 3D UI]
                                                           ^               ^
                                                           |               |
                                                       [MongoDB]      [PostgreSQL]
@@ -105,7 +105,7 @@ GET    /api/messages/:roomId  # Get room messages
 POST   /api/reactions         # Send reaction
 ```
 
-## 4. Eliza AI Framework/ bor-client
+## 4. Eliza AI Framework / client-borp
 The core AI engine powering the autonomous agents:
 We created our own client in the ELiza framework called bor-client that enables the connection to the 3d UI and the backend server.
 The bor-client is responsible for generating:
