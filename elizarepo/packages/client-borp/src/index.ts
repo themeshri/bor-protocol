@@ -383,7 +383,7 @@ export class BorpClient {
                 animationOptions: getAllAnimations().join(", "),
             });
 
-        console.log(`Generated template animation: ${_borpAnimationTemplate}`);
+        // console.log(`Generated template animation: ${_borpAnimationTemplate}`);
         // return _borpAnimationTemplate;
         
             const animationResponse = await generateText({
@@ -842,7 +842,7 @@ Return only the thought, no explanations or formatting.
                 template: borpAnimationTemplate
             });
 
-            console.log(`Generated template animation: ${context}`);
+            // console.log(`Generated template animation: ${context}`);
             // return context;
 
             const animation = await generateText({
@@ -850,7 +850,7 @@ Return only the thought, no explanations or formatting.
                 context,
                 modelClass: ModelClass.SMALL,
             });
-            // console.log(`Generated template animation: ${animation}`);
+            console.log(`Generated template animation: ${animation}`);
             // return animation;
 
             // Validate the animation is in our list
