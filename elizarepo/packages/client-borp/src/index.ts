@@ -804,7 +804,7 @@ Return only the thought, no explanations or formatting.
         const thoughtText = await generateText({
             runtime: this.runtime,
             context,
-            modelClass: ModelClass.LARGE,
+            modelClass: ModelClass.MEDIUM,
         });
 
         console.log(`Generated Fresh Thought: ${thoughtText}`);
