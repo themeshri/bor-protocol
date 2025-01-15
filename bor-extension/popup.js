@@ -1,70 +1,74 @@
 let isMonitoring = false;
 
-// Initialize state from storage when popup opens
-chrome.storage.local.get('isMonitoring', (result) => {
-    isMonitoring = result.isMonitoring || false;
-    const button = document.getElementById('toggleButton');
-    const status = document.getElementById('status');
-    
-    if (isMonitoring) {
-        button.textContent = 'Stop Monitoring';
-        button.classList.add('stop');
-        status.textContent = 'Monitoring active...';
-    } else {
-        button.textContent = 'Start Monitoring';
-        button.classList.remove('stop');
-        status.textContent = 'Ready to monitor';
+// Function to find specific windows
+async function findRequiredWindows() {
+    const windows = await chrome.windows.getAll({ populate: true });
+    let appWindow = null;
+    let broadcastWindow = null;
+
+    for (const window of windows) {
+        for (const tab of window.tabs) {
+            if (tab.url.startsWith('http://localhost:5173')) {
+                appWindow = window;
+            } else if (tab.url.includes('x.com/i/broadcasts/')) {
+                broadcastWindow = window;
+            }
+        }
     }
+
+    return { appWindow, broadcastWindow };
+}
+
+// Initialize state from storage when popup opens
+chrome.storage.local.get(['isMonitoring', 'broadcastWindowId', 'appWindowId'], (result) => {
+    isMonitoring = result.isMonitoring || false;
+    updateUI(isMonitoring);
 });
 
 document.getElementById('toggleButton').addEventListener('click', async () => {
-    const button = document.getElementById('toggleButton');
     const status = document.getElementById('status');
     
     if (!isMonitoring) {
-        // Start monitoring
-        const tabs = await chrome.tabs.query({ currentWindow: true });
+        // Find required windows
+        const { appWindow, broadcastWindow } = await findRequiredWindows();
 
-        if (tabs.length < 2) {
-            status.textContent = 'Need at least 2 tabs!';
+        if (!appWindow || !broadcastWindow) {
+            status.textContent = 'Error: Required windows not found!\nNeed:\n- localhost:5173\n- x.com/i/broadcasts/';
             return;
         }
 
-        const firstTab = tabs[0];
-        const secondTab = tabs[1];
-
         try {
+            // Store window IDs
+            await chrome.storage.local.set({
+                appWindowId: appWindow.id,
+                broadcastWindowId: broadcastWindow.id
+            });
+
+            // Execute monitoring script in the broadcast window
             await chrome.scripting.executeScript({
-                target: { tabId: secondTab.id },
+                target: { tabId: broadcastWindow.tabs[0].id },
                 func: function() {
-                    // Add a Set to track processed messages
+                    // Reset state
                     window.processedMessages = new Set();
 
+                    // Create observer
                     window.myObserver = new MutationObserver(mutations => {
                         mutations.forEach(mutation => {
                             mutation.addedNodes.forEach(node => {
                                 if (node.nodeType === 1 && node.matches('div[class="css-175oi2r r-1d5kdc7 r-173mzie"]')) {
-                                    // Add a small delay to ensure content is loaded
                                     setTimeout(() => {
                                         const link = node.querySelector('a[class="css-175oi2r r-xoduu5 r-1wbh5a2 r-dnmrzs r-1ny4l3l r-1loqt21"]');
-                                        debugger;
-                                        // Try multiple selector approaches
                                         let imageElement = node.querySelector('img.css-9pa8cd');
                                         
-                                        // If not found, try alternative selectors
                                         if (!imageElement) {
-                                             console.log("other approach")
                                             imageElement = node.querySelector('img[class*="css-9pa8cd"]');
                                         }
-                                        
-                                        console.log("Image element found:", imageElement);
                                         
                                         let linkContent = '';
                                         let srcImageContent = '';
                                        
                                         if (imageElement) {
                                             srcImageContent = imageElement.src;
-                                            console.log("Image source:", srcImageContent);
                                         } 
                                         
                                         if (link) {
@@ -87,18 +91,13 @@ document.getElementById('toggleButton').addEventListener('click', async () => {
                                                 .find(node => node.nodeName === 'SPAN');
                                             
                                             if (directSpan) {
-                                                
-                                                    content = directSpan.textContent.trim();
-                                                    console.log("content content:", content);
-                                        
+                                                content = directSpan.textContent.trim();
                                             }
                                         }
 
                                         if (linkContent || content) {
-                                            // Create a unique identifier for the message
                                             const messageId = `${linkContent}-${content}-${srcImageContent}`;
                                             
-                                            // Check if we've already processed this message
                                             if (!window.processedMessages.has(messageId)) {
                                                 window.processedMessages.add(messageId);
                                                 
@@ -113,7 +112,7 @@ document.getElementById('toggleButton').addEventListener('click', async () => {
                                                 }, '*');
                                             }
                                         }
-                                    }, 40); // Small delay to ensure content is loaded
+                                    }, 40);
                                 }
                             });
                         });
@@ -126,76 +125,85 @@ document.getElementById('toggleButton').addEventListener('click', async () => {
             
             isMonitoring = true;
             chrome.storage.local.set({ isMonitoring: true });
-            button.textContent = 'Stop Monitoring';
-            button.classList.add('stop');
-            status.textContent = 'Monitoring active...';
+            updateUI(true);
         } catch (err) {
             status.textContent = 'Error: ' + err.message;
         }
     } else {
         // Stop monitoring
         try {
-            const tabs = await chrome.tabs.query({ currentWindow: true });
-            const secondTab = tabs[1];
-            
-            await chrome.scripting.executeScript({
-                target: { tabId: secondTab.id },
-                func: function() {
-                    if (window.myObserver) {
-                        window.myObserver.disconnect();
-                        window.myObserver = null;
-                    }
-                    return true;
+            const result = await chrome.storage.local.get('broadcastWindowId');
+            if (result.broadcastWindowId) {
+                const windows = await chrome.windows.getAll({ populate: true });
+                const broadcastWindow = windows.find(w => w.id === result.broadcastWindowId);
+                if (broadcastWindow) {
+                    await chrome.scripting.executeScript({
+                        target: { tabId: broadcastWindow.tabs[0].id },
+                        func: function() {
+                            if (window.myObserver) {
+                                window.myObserver.disconnect();
+                                window.myObserver = null;
+                            }
+                            return true;
+                        }
+                    });
                 }
-            });
+            }
 
             isMonitoring = false;
-            chrome.storage.local.set({ isMonitoring: false });
-            button.textContent = 'Start Monitoring';
-            button.classList.remove('stop');
-            status.textContent = 'Monitoring stopped';
+            chrome.storage.local.set({ 
+                isMonitoring: false,
+                broadcastWindowId: null,
+                appWindowId: null
+            });
+            updateUI(false);
         } catch (err) {
             status.textContent = 'Error stopping: ' + err.message;
         }
     }
 });
 
-chrome.runtime.onMessage.addListener((message) => {
-    if (message.type === 'MONITORING_STOPPED') {
-        isMonitoring = false;
-        const button = document.getElementById('toggleButton');
-        const status = document.getElementById('status');
-        
+function updateUI(monitoring) {
+    const button = document.getElementById('toggleButton');
+    const status = document.getElementById('status');
+    
+    if (monitoring) {
+        button.textContent = 'Stop Monitoring';
+        button.classList.add('stop');
+        status.textContent = 'Monitoring active...';
+    } else {
         button.textContent = 'Start Monitoring';
         button.classList.remove('stop');
-        status.textContent = message.reason === 'tab_reload' ? 
-            'Monitoring stopped (tab reloaded)' : 'Monitoring stopped';
+        status.textContent = 'Ready to monitor';
     }
-});
-
-// Also add a periodic state check
-function checkMonitoringState() {
-    chrome.storage.local.get('isMonitoring', (result) => {
-        if (isMonitoring !== result.isMonitoring) {
-            isMonitoring = result.isMonitoring;
-            const button = document.getElementById('toggleButton');
-            const status = document.getElementById('status');
-            
-            if (isMonitoring) {
-                button.textContent = 'Stop Monitoring';
-                button.classList.add('stop');
-                status.textContent = 'Monitoring active...';
-            } else {
-                button.textContent = 'Start Monitoring';
-                button.classList.remove('stop');
-                status.textContent = 'Ready to monitor';
-            }
-        }
-    });
 }
 
-// Check state every 5 seconds
-const stateCheckInterval = setInterval(checkMonitoringState, 5000);
+// Regular state check
+async function checkWindowStates() {
+    const { appWindow, broadcastWindow } = await findRequiredWindows();
+    const result = await chrome.storage.local.get(['isMonitoring', 'appWindowId', 'broadcastWindowId']);
+
+    if (result.isMonitoring) {
+        // If monitoring but required windows are missing, stop monitoring
+        if (!appWindow || !broadcastWindow || 
+            appWindow.id !== result.appWindowId || 
+            broadcastWindow.id !== result.broadcastWindowId) {
+            
+            chrome.storage.local.set({ 
+                isMonitoring: false,
+                broadcastWindowId: null,
+                appWindowId: null
+            });
+            chrome.runtime.sendMessage({
+                type: 'MONITORING_STOPPED',
+                reason: 'windows_changed'
+            });
+        }
+    }
+}
+
+// Check window states every 5 seconds
+const stateCheckInterval = setInterval(checkWindowStates, 5000);
 
 // Clean up interval when popup closes
 window.addEventListener('unload', () => {
