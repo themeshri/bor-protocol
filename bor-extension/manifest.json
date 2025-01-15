@@ -9,7 +9,8 @@
     "activeTab",
     "tabs",
     "scripting",
-    "storage"
+    "storage",
+    "windows"  // Added windows permission
   ],
   "host_permissions": [
     "http://localhost:*/*",
