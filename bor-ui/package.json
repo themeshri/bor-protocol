@@ -36,6 +36,7 @@
     "express": "^4.21.1",
     "framer-motion": "^11.14.4",
     "input-otp": "^1.2.4",
+    "isomorphic-ws": "^5.0.0",
     "lucide-react": "^0.344.0",
     "next-themes": "^0.3.0",
     "process": "^0.11.10",
@@ -54,8 +55,10 @@
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-colors": "^2.0.0",
     "three": "^0.170.0",
+    "tmi.js": "^1.8.5",
     "util": "^0.12.5",
     "vaul": "^1.0.0",
+    "ws": "^8.16.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
