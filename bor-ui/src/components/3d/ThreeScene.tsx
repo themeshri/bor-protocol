@@ -50,9 +50,9 @@ const ANIMATIONS = [
   '/animations/angry_gesture.fbx',
   '/animations/annoyed_head_shake.fbx',
   '/animations/being_cocky.fbx',
-  '/animations/blow_a_kiss.fbx',
+  // '/animations/blow_a_kiss.fbx',
   '/animations/dismissing_gesture.fbx',
-  '/animations/happy_hand_gesture.fbx',
+  // '/animations/happy_hand_gesture.fbx',
   '/animations/hard_head_nod.fbx',
   '/animations/head_nod_yes.fbx',
   '/animations/hip_hop_dancing.fbx',
@@ -92,6 +92,16 @@ const ANIMATIONS = [
   '/animations/are_you_crazy.fbx',
   '/animations/focusing.fbx',
   '/animations/speedbag_boxing.fbx',
+  '/animations/idlet.fbx',
+  '/animations/Pointing.fbx',
+  '/animations/light_dance.fbx',
+  '/animations/hands_up.fbx',
+  '/animations/trump_dance.fbx',
+  '/animations/Listening_To_Music.fbx',
+  '/animations/play_golf.fbx',
+  '/animations/cheering.fbx',
+  '/animations/fist_up.fbx'
+
 
 ];
 

@@ -34,7 +34,8 @@ export const ANIMATION_OPTIONS = {
         "idle-2", 
         "idle_basic", 
         "idle_dwarf",
-        "offensive_idle"
+        "offensive_idle",
+        "idlet"
     ],
 
     // Head movements 
@@ -54,22 +55,22 @@ export const ANIMATION_OPTIONS = {
         "angry_gesture",
         "being_cocky",
         "dismissing_gesture", 
-        "happy_hand_gesture",
+        // "happy_hand_gesture",
         "look_away_gesture",
         "relieved_sigh",
         "standing_clap",
-        "blow_a_kiss"
+        // "blow_a_kiss"
     ],
 
     // Dancing
     DANCING: [
-        "dancing_twerk",
+        // "dancing_twerk",
         "hip_hop_dancing",
         "rumba_dancing",
         "silly_dancing",
         "capoeira",
-        "belly_dance",
-        "maraschino",
+        // "belly_dance",
+        // "maraschino",
         "Hiphop_dancing",
         "Silly_dancing",
         "Robot_Dance",
@@ -89,12 +90,12 @@ export const ANIMATION_OPTIONS = {
     SPECIAL: [
         "appearing",
         "floating", 
-        "joyful_jump",
+        // "joyful_jump",
         "laughing",
         "got_assasinated",
         "walk_with_rifle",
         "weight_shift",
-        "blow_a_kiss",
+        // "blow_a_kiss",
         "defeated",
         "praying",
         "angry",
@@ -117,5 +118,13 @@ export const ANIMATION_OPTIONS = {
         "are_you_crazy",
         "focusing",
         "speedbag_boxing",
+        "pointing" ,
+        "light_dance",
+        "hands_up",
+        "trump_dance",
+        "listening_to_music",
+        "play_golf",
+        "cheering",
+        "fist_up"
     ]
 };

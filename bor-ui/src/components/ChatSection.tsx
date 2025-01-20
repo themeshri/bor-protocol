@@ -1,3 +1,5 @@
+import './WebSocketProvider';  // Import this first!
+
 import { useState, useEffect, useRef } from 'react';
 import { X, Heart } from 'lucide-react';
 import { TopViewers, TopStreamer } from './TopViewers';
@@ -6,6 +8,9 @@ import { useUser } from '../contexts/UserContext';
 import { useTopGifters } from '../hooks/useGiftsApi';
 import { HeartAnimation } from './old/HeartAnimation';
 import { validateMessage, sanitizeMessage } from '../utils/messageValidation';
+import { Client } from 'tmi.js';
+
+
 
 interface ChatSectionProps {
   onClose?: () => void;
@@ -157,6 +162,7 @@ export function ChatSection({ onClose }: ChatSectionProps) {
   const [canSend, setCanSend] = useState(true);
   const [timeLeft, setTimeLeft] = useState(0);
   const [showError, setShowError] = useState(false);
+
   const [localMessages, setLocalMessages] = useState<Array<{
     id: string;
     message: string;
@@ -169,8 +175,24 @@ export function ChatSection({ onClose }: ChatSectionProps) {
   const { data: topViewers, isLoading } = useTopGifters(currentAgentId, 3);
 
   // // console.log({ topViewers });
-
-
+  const [isConnected, setIsConnected] = useState(false);
+  const clientIdRef = useRef(import.meta.env.VITE_TWITCH_CLIENT_ID);
+ // Function to fetch user avatar
+ const fetchUserAvatar = async (userId: string): Promise<string | null> => {
+  try {
+      const response = await fetch(`https://api.twitch.tv/helix/users?id=${userId}`, {
+          headers: {
+              'Authorization': `Bearer ${import.meta.env.VITE_TWITCH_ACCESS_TOKEN}`,
+              'Client-Id': clientIdRef.current
+          }
+      });
+      const data = await response.json();
+      return data.data[0]?.profile_image_url;
+  } catch (error) {
+      console.error('Error fetching avatar:', error);
+      return null;
+  }
+};
 
   useEffect(() => {
     (window as any).addChatMessage = (message: string) => addComment(message, true);
@@ -252,52 +274,204 @@ export function ChatSection({ onClose }: ChatSectionProps) {
       return () => clearTimeout(timer);
     }
   }, [lastLikeTimestamp]);
-
+/*
   useEffect(() => {
-    const messageHandler = (event: MessageEvent) => {
-        console.log('Received message:', event.data); // Debug log
+ 
+      // Create a new client
+     const client = new Client({
+    options: { debug: true },
+    connection: {
+        secure: true,
+        reconnect: true
+    },
+    identity: {
+        username: import.meta.env.VITE_TWITCH_BOT_USERNAME,
+        password: import.meta.env.VITE_TWITCH_ACCESS_TOKEN
+    },
+    channels: [import.meta.env.VITE_TWITCH_CHANNEL]
+});
+        //console.log('Received message:', event.data); // Debug log
+        client.on('message', async (channel, tags, message, self) => {
+          if (self) return;
+      
+          const avatar = await fetchUserAvatar(tags['user-id'] || '');
 
-        if (event.data?.type === 'NEW_CHAT_DATA' && event.data?.payload) {
-            const payload = event.data.payload;
-            
-            // Verify the payload has the expected structure
-            if (payload.username && payload.chatContent && payload.timestamp) {
-                const newMessage: ChatMessage = {
-                    username: payload.username,
-                    chatContent: payload.chatContent,
-                    timestamp: payload.timestamp,
-                    avatar: payload.avatar
-                };
-                
-                console.log('Processed message:', newMessage); // Debug log
-                setChatMessages(prevMessages => [...prevMessages, newMessage]);
-                const trimmedMessage = newMessage.chatContent.trim();
-              
-                // Validate message
-               // const validation = validateMessage(trimmedMessage);
-              
+
+           // Verify the payload has the expected structure
+            const newMessage: ChatMessage = {
+                username:  tags['display-name'],
+                chatContent: message,
+                timestamp: new Date(),
+                avatar: avatar || 'https://static-cdn.jtvnw.net/user-default-pictures-uv/13e5fa74-defa-11e9-809c-784f43822e80-profile_image-70x70.png' // Default Twitch avatar
+              };
+
+                  // Check if message already exists with same content and username
+
+             // Check for duplicate message
+             let x = true
+
+    setChatMessages(prevMessages => {
+      const isDuplicate = prevMessages.some(msg => 
+        msg.username === newMessage.username && 
+        msg.chatContent === newMessage.chatContent
+      );
+
+      console.error('information:', isDuplicate);
+      console.error('prev messages:', prevMessages);
+      console.error('msg:', newMessage);
+
+
+      if (isDuplicate) {
+        x=false
+        return prevMessages; // Don't add duplicate message
+      }
+      const trimmedMessage = newMessage.chatContent.trim();
+      addComment(trimmedMessage, newMessage.avatar, newMessage.username);
+      console.error('true:', prevMessages);
+      return [...prevMessages, newMessage];
+    });
+
+
+
+
+          
+            // Validate message
+           // const validation = validateMessage(trimmedMessage);
+          
+
+
+            // Sanitize message before sending
+           // const sanitizedMessage = sanitizeMessage(trimmedMessage);
+    // Only add comment if it's not a duplicate
+    if (x
+    ) {
+
+      setIsMultiplierAnimating(true);
+      setTimeout(() => setIsMultiplierAnimating(false), 100);
+      triggerLike();
+    }
+            setNewMessage('');
+            setCanSend(false);
+            setTimeLeft(1);
+          })
+
+      
+    
+      
+    
+
+      // Handle incoming messages
+     
+
+      client.on('connected', () => {
+        setIsConnected(true);
+        console.log('Connected to Twitch chat!');
+      });
+      
+      client.on('disconnected', () => {
+        setIsConnected(false);
+        console.log('Disconnected from Twitch chat!');
+      });
+      
+      // Connect to Twitch
+      client.connect().catch(console.error);
+      
+   
+
+      // Cleanup on unmount
   
-                // Sanitize message before sending
-               // const sanitizedMessage = sanitizeMessage(trimmedMessage);
-                addComment(trimmedMessage,newMessage.avatar,newMessage.username);
-                   // Trigger animation on number change
-          setIsMultiplierAnimating(true);
-          setTimeout(() => setIsMultiplierAnimating(false), 100);
-          triggerLike();
-                setNewMessage('');
-                setCanSend(false);
-                setTimeLeft(1);
-            }
-        }
-    };
 
-    window.addEventListener('message', messageHandler);
+   
 
     return () => {
-        window.removeEventListener('message', messageHandler);
+      client.disconnect();
+        // window.removeEventListener('message', messageHandler);
     };
 }, []);
 
+*/
+useEffect(() => {
+ 
+  // Create a new client instance
+  const client = new Client({
+    options: { debug: true },
+    connection: {
+        secure: true,
+        reconnect: true
+    },
+    identity: {
+        username: import.meta.env.VITE_TWITCH_BOT_USERNAME,
+        password: import.meta.env.VITE_TWITCH_ACCESS_TOKEN
+    },
+    channels: [import.meta.env.VITE_TWITCH_CHANNEL]
+});
+
+
+
+ // Function to handle messages
+ const handleMessage = async (channel, tags, message, self) => {
+  if (self) return; // Ignore messages from the bot
+
+  // Fetch avatar for the user
+  const avatar = await fetchUserAvatar(tags['user-id']);
+
+  // Verify the payload has the expected structure
+  const newMessage: ChatMessage = {
+    username:  tags['display-name'],
+    chatContent: message,
+    timestamp: new Date(),
+    avatar: avatar || 'https://static-cdn.jtvnw.net/user-default-pictures-uv/13e5fa74-defa-11e9-809c-784f43822e80-profile_image-70x70.png' // Default Twitch avatar
+  };
+  setChatMessages(prevMessages => [...prevMessages, newMessage]);
+
+  const trimmedMessage = newMessage.chatContent.trim();
+      
+  // Validate message
+ // const validation = validateMessage(trimmedMessage);
+
+
+  // Sanitize message before sending
+ // const sanitizedMessage = sanitizeMessage(trimmedMessage);
+  addComment(trimmedMessage,newMessage.avatar,newMessage.username);
+     // Trigger animation on number change
+setIsMultiplierAnimating(true);
+setTimeout(() => setIsMultiplierAnimating(false), 100);
+triggerLike();
+  setNewMessage('');
+  setCanSend(false);
+  setTimeLeft(1);
+
+
+
+};
+
+// Handle connection
+const handleConnect = () => {
+setIsConnected(true);
+console.log('Connected to Twitch chat!');
+};
+
+// Handle disconnection
+const handleDisconnect = () => {
+setIsConnected(false);
+console.log('Disconnected from Twitch chat!');
+};
+   // Add event listeners
+   client.on('message', handleMessage);
+   client.on('connected', handleConnect);
+   client.on('disconnected', handleDisconnect);
+
+   // Connect to Twitch
+   client.connect().catch(console.error);
+
+   // Cleanup function
+   return () => {
+       client.removeListener('message', handleMessage);
+       client.removeListener('connected', handleConnect);
+       client.removeListener('disconnected', handleDisconnect);
+       client.disconnect();
+   };
+}, []);
 
   // Add cooldown timer effect
   useEffect(() => {

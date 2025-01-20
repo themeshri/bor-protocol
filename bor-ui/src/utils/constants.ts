@@ -85,11 +85,11 @@ export const BGM_URLS = {
 export const NEW_STREAM_CONFIGS: NewStreamConfig[] = [
  {
    id: 0,
-   title: "Bor stream",
-   agentId: "8965aa97-f1b2-0891-98ac-4a8c82a7af60",
+   title: "Trump stream",
+   agentId: "795df77f-1620-07db-bd9a-0e2dfefef248",
    twitter: "@bor_live",
-   modelName: "Borp",
-   identifier: "borp",
+   modelName: "Trump",
+   identifier: "Trump",
    description: "My first stream!",
    color: "#FE2C55",
    type: "stream",
@@ -100,7 +100,7 @@ export const NEW_STREAM_CONFIGS: NewStreamConfig[] = [
      {
        "id": 0,
        "name": "Cafe",
-       "environmentURL": "wall6.glb",
+       "environmentURL": "tt.glb",
        "models": [
         //  {
         //   "model": "Clown doll A.vrm",
@@ -126,12 +126,12 @@ export const NEW_STREAM_CONFIGS: NewStreamConfig[] = [
         //    ]
         //  },
          {
-           "model": "bor_model.vrm",
+           "model": "tromp.vrm",
            "name": "Bor",
-           "agentId": "8965aa97-f1b2-0891-98ac-4a8c82a7af60",
+           "agentId": "795df77f-1620-07db-bd9a-0e2dfefef248",
            "description": "Bor",
            "clothes": "casual",
-           "defaultAnimation": "offensive_idle",
+           "defaultAnimation": "idlet",
            "modelPosition": [
              1.51,
              -0.4999999999999999,
@@ -167,7 +167,7 @@ export const NEW_STREAM_CONFIGS: NewStreamConfig[] = [
        "cameraPitch": 0,
        "cameraPosition": [
          2.86339364354024,
-         0.69999999999999,
+         0.75999999999999,
          -7.734076601144114
        ],
        "cameraRotation": -4.708758241001718
@@ -208,27 +208,36 @@ export const getModelUrl = (model: string) => `${MODELS_BASE_URL}/${model}`;
 
 
 export const ANIMATION_MAP: { [key: string]: string } = {
+  "pointing": "Pointing.fbx",
+  "light_dance": "light_dance.fbx",
+  "hands_up": "hands_up.fbx",
+  "trump_dance": "trump_dance.fbx",
+  "listening_to_music": "Listening_To_Music.fbx",
+  "play_golf": "play_golf.fbx",
+  "cheering": "cheering.fbx",
+  "fist_up": "fist_up.fbx",
    "acknowledging": "acknowledging.fbx",
    "angry_gesture": "angry_gesture.fbx",
    "annoyed_head_shake": "annoyed_head_shake.fbx",
    "appearing": "appearing.fbx",
    "being_cocky": "being_cocky.fbx",
-   "blow_a_kiss": "blow_a_kiss.fbx",
+  //  "blow_a_kiss": "blow_a_kiss.fbx",
    "got_assasinated": "brutal_assassination.fbx",
-   "dancing_twerk": "dancing_twerk.fbx",
+  //  "dancing_twerk": "dancing_twerk.fbx",
    "hip_hop_dancing": "hip_hop_dancing.fbx",
    "floating": "idle/floating.fbx",
-   "capoeira": "capoeira.fbx",
+   "capoeira": ".fbx",
    "dismissing_gesture": "dismissing_gesture.fbx",
-   "happy_hand_gesture": "happy_hand_gesture.fbx",
+  //  "happy_hand_gesture": "happy_hand_gesture.fbx",
    "hard_head_nod": "hard_head_nod.fbx",
    "head_nod_yes": "head_nod_yes.fbx",
    "idle": "idle-2.fbx",
+   "idlet": "idlet.fbx",
    "idle-2": "idle-2.fbx",
    "idle_basic": "idle.fbx",
    "weight_shift": "weight_shift.fbx",
    "idle_dwarf": "idle/idle_dwarf.fbx",
-   "joyful_jump": "joyful_jump.fbx",
+  //  "joyful_jump": "joyful_jump.fbx",
    "laughing": "laughing.fbx",
    "lengthy_head_nod": "lengthy_head_nod.fbx",
    "look_away_gesture": "look_away_gesture.fbx",
@@ -245,8 +254,8 @@ export const ANIMATION_MAP: { [key: string]: string } = {
    "standing_clap": "standing_clap.fbx",
    "thoughtful_head_shake": "thoughtful_head_shake.fbx",
    "walk_with_rifle": "walk_with_rifle.fbx",
-   "belly_dance": "dance/belly_dance.fbx",
-   "maraschino": "dance/maraschino.fbx",
+  //  "belly_dance": "dance/belly_dance.fbx",
+  //  "maraschino": "dance/maraschino.fbx",
    "defeated": "defeated.fbx",
    "praying": "praying.fbx",
    "hiphop_dancing": "hiphop_dancing.fbx",
@@ -272,6 +281,8 @@ export const ANIMATION_MAP: { [key: string]: string } = {
    "are_you_crazy": "are_you_crazy.fbx",
    "focusing": "focusing.fbx",
    "speedbag_boxing": "speedbag_boxing.fbx",
+
+
 
 };
 
